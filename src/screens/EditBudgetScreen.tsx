@@ -8,12 +8,13 @@ import { EmptyState } from '@/components/EmptyState';
 import { ItemEditorRow } from '@/components/ItemEditorRow';
 import { Notice } from '@/components/Notice';
 import { SectionLabel } from '@/components/SectionLabel';
+import { Icon } from '@/components/Icon';
 import { useBudget, useBudgets } from '@/store/budgets';
 import type { Budget, BudgetItem } from '@/types/budget';
 import { countMissingPrices, formatTotal } from '@/utils/budget';
 import { currencyInputValue, parseCurrencyInput } from '@/utils/currency';
 import { createId } from '@/utils/id';
-import { colors, fontSize, spacing } from '@/theme';
+import { colors, fontFamily, spacing } from '@/theme';
 
 /**
  * Revisão + precificação (Opção A do MVP).
@@ -31,8 +32,9 @@ export function EditBudgetScreen() {
   // campos nunca começa vazio enquanto o AsyncStorage ainda está respondendo.
   if (!budget) {
     return (
-      <Screen>
+      <Screen title="Orçamento">
         <EmptyState
+          icon="file-text"
           title={isLoading ? 'Carregando…' : 'Orçamento não encontrado'}
           description={
             isLoading ? 'Só um instante.' : 'Esse orçamento não está mais salvo neste aparelho.'
@@ -74,6 +76,7 @@ function BudgetForm({ budget }: { budget: Budget }) {
 
   const total = formatTotal(pricedItems);
   const missing = countMissingPrices(pricedItems);
+  const allMissing = missing === pricedItems.length;
 
   const updateDescription = (itemId: string, description: string) => {
     setItems((current) =>
@@ -119,13 +122,14 @@ function BudgetForm({ budget }: { budget: Budget }) {
 
   return (
     <Screen
+      title="Revisar e precificar"
       footer={
         <>
           <View style={styles.totalRow}>
             <Text style={styles.totalLabel}>Total</Text>
-            <Text style={styles.totalValue}>{total}</Text>
+            <Text style={[styles.totalValue, allMissing && styles.totalValueMuted]}>{total}</Text>
           </View>
-          <Button label="Salvar orçamento" onPress={save} />
+          <Button label="Salvar orçamento" corners onPress={save} />
         </>
       }
     >
@@ -158,7 +162,10 @@ function BudgetForm({ budget }: { budget: Budget }) {
       />
 
       <View style={styles.itemsSection}>
-        <SectionLabel>Serviços e valores</SectionLabel>
+        <View style={styles.itemsHeader}>
+          <SectionLabel>Serviços e valores</SectionLabel>
+          <View style={styles.itemsRule} />
+        </View>
 
         {items.length === 0 ? (
           <Text style={styles.emptyItems}>
@@ -186,7 +193,8 @@ function BudgetForm({ budget }: { budget: Budget }) {
           onPress={addItem}
           style={({ pressed }) => [styles.addItem, pressed && styles.addItemPressed]}
         >
-          <Text style={styles.addItemLabel}>+ Adicionar item</Text>
+          <Icon name="plus" size={18} color={colors.primary} />
+          <Text style={styles.addItemLabel}>Adicionar item</Text>
         </Pressable>
       </View>
 
@@ -201,22 +209,25 @@ function BudgetForm({ budget }: { budget: Budget }) {
         maxLength={400}
       />
 
-      <Field
-        label="Prazo estimado"
-        value={estimatedDeadline}
-        onChangeText={setEstimatedDeadline}
-        placeholder="Ex.: 5 dias úteis"
-        maxLength={40}
-      />
-
-      <Field
-        label="Validade do orçamento (dias)"
-        value={validityText}
-        onChangeText={(value) => setValidityText(value.replace(/\D/g, '').slice(0, 3))}
-        placeholder="10"
-        keyboardType="number-pad"
-        inputMode="numeric"
-      />
+      <View style={styles.row}>
+        <Field
+          label="Prazo estimado"
+          value={estimatedDeadline}
+          onChangeText={setEstimatedDeadline}
+          placeholder="5 dias úteis"
+          maxLength={40}
+          containerStyle={styles.rowGrow}
+        />
+        <Field
+          label="Validade"
+          value={validityText}
+          onChangeText={(value) => setValidityText(value.replace(/\D/g, '').slice(0, 3))}
+          placeholder="10"
+          keyboardType="number-pad"
+          inputMode="numeric"
+          containerStyle={styles.rowFixed}
+        />
+      </View>
     </Screen>
   );
 }
@@ -225,29 +236,55 @@ const styles = StyleSheet.create({
   itemsSection: {
     gap: spacing.md,
   },
+  itemsHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  itemsRule: {
+    flex: 1,
+    height: 1,
+    backgroundColor: colors.border,
+  },
   emptyItems: {
-    fontSize: fontSize.sm,
-    color: colors.textSubtle,
+    fontFamily: fontFamily.regular,
+    fontSize: 13,
+    color: colors.textMuted,
   },
   addItem: {
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: spacing.lg - 2,
-    borderRadius: spacing.md,
+    gap: spacing.sm,
+    minHeight: 52,
+    borderRadius: 4,
     borderWidth: 1,
     borderStyle: 'dashed',
     borderColor: colors.borderStrong,
   },
   addItemPressed: {
-    backgroundColor: colors.surfaceMuted,
+    backgroundColor: colors.primarySoft,
+    borderColor: colors.primary,
   },
   addItemLabel: {
-    fontSize: fontSize.sm,
-    fontWeight: '600',
+    fontFamily: fontFamily.condensedSemiBold,
+    fontSize: 16,
+    letterSpacing: 0.2,
     color: colors.primary,
   },
   observations: {
     minHeight: 96,
+  },
+  row: {
+    flexDirection: 'row',
+    gap: spacing.md,
+  },
+  rowGrow: {
+    flex: 1,
+    minWidth: 0,
+  },
+  rowFixed: {
+    width: 112,
   },
   totalRow: {
     flexDirection: 'row',
@@ -257,17 +294,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.xs,
   },
   totalLabel: {
-    fontSize: fontSize.sm,
-    fontWeight: '700',
-    letterSpacing: 1,
+    fontFamily: fontFamily.condensedSemiBold,
+    fontSize: 12,
+    letterSpacing: 1.8,
     textTransform: 'uppercase',
     color: colors.textMuted,
   },
   totalValue: {
     flexShrink: 1,
-    fontSize: fontSize.xl,
-    fontWeight: '700',
-    color: colors.primary,
+    fontFamily: fontFamily.condensedSemiBold,
+    fontSize: 26,
+    color: colors.text,
+    fontVariant: ['tabular-nums'],
     textAlign: 'right',
+  },
+  totalValueMuted: {
+    color: colors.textMuted,
   },
 });

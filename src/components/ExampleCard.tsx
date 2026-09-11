@@ -2,7 +2,7 @@ import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import type { BudgetExample } from '@/data/examples';
 import { getServiceType } from '@/data/serviceTypes';
-import { colors, fontSize, radius, spacing } from '@/theme';
+import { colors, fontFamily, radius, spacing } from '@/theme';
 
 type Props = {
   example: BudgetExample;
@@ -19,8 +19,9 @@ export function ExampleCard({ example, onPress }: Props) {
       style={({ pressed }) => [styles.card, pressed && styles.pressed]}
     >
       <View style={styles.header}>
-        <Text style={styles.customer}>{example.customerName}</Text>
-        <Text style={styles.tag}>{getServiceType(example.serviceType).label}</Text>
+        <Text style={styles.head}>
+          {example.customerName} · {getServiceType(example.serviceType).label}
+        </Text>
       </View>
       <Text style={styles.message} numberOfLines={3}>
         “{example.customerMessage}”
@@ -33,46 +34,35 @@ export function ExampleCard({ example, onPress }: Props) {
 const styles = StyleSheet.create({
   card: {
     backgroundColor: colors.surface,
-    borderRadius: radius.md,
+    borderRadius: radius.sm,
     borderWidth: 1,
     borderColor: colors.border,
     padding: spacing.lg,
     gap: spacing.sm,
   },
   pressed: {
-    backgroundColor: colors.surfaceMuted,
+    borderColor: colors.textMuted,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: spacing.sm,
   },
-  customer: {
-    flex: 1,
-    fontSize: fontSize.md,
-    fontWeight: '700',
-    color: colors.text,
-  },
-  tag: {
-    fontSize: fontSize.xs,
-    fontWeight: '600',
+  head: {
+    fontFamily: fontFamily.condensedSemiBold,
+    fontSize: 11,
+    letterSpacing: 1.4,
+    textTransform: 'uppercase',
     color: colors.textMuted,
-    backgroundColor: colors.surfaceMuted,
-    borderRadius: radius.pill,
-    paddingHorizontal: spacing.md - 2,
-    paddingVertical: 3,
-    overflow: 'hidden',
   },
   message: {
-    fontSize: fontSize.sm,
-    color: colors.textMuted,
+    fontFamily: fontFamily.regular,
+    fontSize: 15,
+    color: colors.text,
     lineHeight: 20,
-    fontStyle: 'italic',
   },
   action: {
-    fontSize: fontSize.sm,
-    fontWeight: '600',
+    fontFamily: fontFamily.semiBold,
+    fontSize: 14,
     color: colors.primary,
   },
 });

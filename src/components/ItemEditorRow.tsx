@@ -1,7 +1,8 @@
 import React from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import type { BudgetItem } from '@/types/budget';
-import { colors, fontSize, radius, spacing } from '@/theme';
+import { colors, fontFamily, radius, spacing } from '@/theme';
+import { Icon } from './Icon';
 
 type Props = {
   item: BudgetItem;
@@ -27,6 +28,8 @@ export function ItemEditorRow({
   onRemove,
   canRemove,
 }: Props) {
+  const hasPrice = priceText.trim().length > 0;
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -37,7 +40,9 @@ export function ItemEditorRow({
             accessibilityLabel={`Remover item ${index + 1}`}
             hitSlop={10}
             onPress={onRemove}
+            style={styles.removeButton}
           >
+            <Icon name="x" size={16} color={colors.danger} />
             <Text style={styles.remove}>Remover</Text>
           </Pressable>
         ) : null}
@@ -47,25 +52,30 @@ export function ItemEditorRow({
         value={item.description}
         onChangeText={onChangeDescription}
         placeholder="Descrição do serviço"
-        placeholderTextColor={colors.textSubtle}
+        placeholderTextColor={colors.textMuted}
         accessibilityLabel={`Descrição do item ${index + 1}`}
         multiline
         style={styles.description}
       />
 
-      <View style={styles.priceRow}>
-        <Text style={styles.currency}>R$</Text>
-        <TextInput
-          value={priceText}
-          onChangeText={onChangePrice}
-          placeholder="0,00"
-          placeholderTextColor={colors.textSubtle}
-          accessibilityLabel={`Valor do item ${index + 1}`}
-          keyboardType="decimal-pad"
-          inputMode="decimal"
-          returnKeyType="done"
-          style={styles.price}
-        />
+      <View style={styles.priceField}>
+        <Text style={styles.priceLabel}>Valor</Text>
+        <View style={[styles.priceRow, hasPrice && styles.priceRowFilled]}>
+          <View style={styles.currencyBox}>
+            <Text style={styles.currency}>R$</Text>
+          </View>
+          <TextInput
+            value={priceText}
+            onChangeText={onChangePrice}
+            placeholder="0,00"
+            placeholderTextColor={colors.textMuted}
+            accessibilityLabel={`Valor do item ${index + 1}`}
+            keyboardType="decimal-pad"
+            inputMode="decimal"
+            returnKeyType="done"
+            style={styles.price}
+          />
+        </View>
       </View>
     </View>
   );
@@ -74,7 +84,7 @@ export function ItemEditorRow({
 const styles = StyleSheet.create({
   container: {
     backgroundColor: colors.surface,
-    borderRadius: radius.md,
+    borderRadius: radius.sm,
     borderWidth: 1,
     borderColor: colors.border,
     padding: spacing.lg,
@@ -86,43 +96,74 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   index: {
-    fontSize: fontSize.xs,
-    fontWeight: '700',
-    letterSpacing: 0.8,
+    fontFamily: fontFamily.condensedSemiBold,
+    fontSize: 11,
+    letterSpacing: 1.8,
     textTransform: 'uppercase',
-    color: colors.textSubtle,
+    color: colors.textMuted,
+  },
+  removeButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    minHeight: 36,
+    paddingHorizontal: 6,
+    paddingVertical: 4,
   },
   remove: {
-    fontSize: fontSize.sm,
-    fontWeight: '600',
+    fontFamily: fontFamily.medium,
+    fontSize: 14,
     color: colors.danger,
   },
   description: {
-    fontSize: fontSize.md,
+    fontFamily: fontFamily.regular,
+    fontSize: 16,
     color: colors.text,
     lineHeight: 21,
     padding: 0,
     minHeight: 22,
   },
+  priceField: {
+    gap: 5,
+  },
+  priceLabel: {
+    fontFamily: fontFamily.condensedSemiBold,
+    fontSize: 10,
+    letterSpacing: 2,
+    textTransform: 'uppercase',
+    color: colors.textMuted,
+  },
   priceRow: {
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    backgroundColor: colors.surfaceMuted,
+    alignItems: 'stretch',
+    borderWidth: 1,
+    borderColor: colors.borderStrong,
     borderRadius: radius.sm,
+    backgroundColor: colors.surface,
+    overflow: 'hidden',
+  },
+  priceRowFilled: {
+    borderColor: colors.primary,
+  },
+  currencyBox: {
+    justifyContent: 'center',
+    backgroundColor: colors.surfaceMuted,
+    borderRightWidth: 1,
+    borderRightColor: colors.border,
     paddingHorizontal: spacing.md,
-    minHeight: 48,
   },
   currency: {
-    fontSize: fontSize.md,
-    fontWeight: '600',
+    fontFamily: fontFamily.medium,
+    fontSize: 17,
     color: colors.textMuted,
   },
   price: {
     flex: 1,
-    fontSize: fontSize.lg,
-    fontWeight: '600',
+    minHeight: 56,
+    fontFamily: fontFamily.medium,
+    fontSize: 22,
+    fontVariant: ['tabular-nums'],
     color: colors.text,
-    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.lg - 2,
   },
 });

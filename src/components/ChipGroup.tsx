@@ -1,6 +1,6 @@
 import React from 'react';
 import { Pressable, ScrollView, StyleSheet, Text } from 'react-native';
-import { colors, fontSize, radius, spacing } from '@/theme';
+import { colors, fontFamily, radius, spacing } from '@/theme';
 
 type Option<T extends string> = { id: T; label: string };
 
@@ -48,13 +48,16 @@ const styles = StyleSheet.create({
   row: {
     gap: spacing.sm,
     paddingRight: spacing.lg,
+    paddingVertical: 2,
   },
   chip: {
+    minHeight: 44,
+    justifyContent: 'center',
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md - 2,
-    borderRadius: radius.pill,
+    borderRadius: radius.sm,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: colors.borderStrong,
     backgroundColor: colors.surface,
   },
   chipSelected: {
@@ -65,11 +68,11 @@ const styles = StyleSheet.create({
     opacity: 0.8,
   },
   label: {
-    fontSize: fontSize.sm,
-    fontWeight: '600',
-    color: colors.textMuted,
+    fontFamily: fontFamily.medium,
+    fontSize: 15,
+    color: colors.text,
   },
   labelSelected: {
-    color: colors.white,
+    color: colors.background,
   },
 });

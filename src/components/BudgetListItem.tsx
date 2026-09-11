@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import type { Budget } from '@/types/budget';
 import { countMissingPrices, formatTotal } from '@/utils/budget';
 import { formatDate } from '@/utils/date';
-import { colors, fontSize, radius, spacing } from '@/theme';
+import { colors, fontFamily, radius, spacing } from '@/theme';
 
 type Props = {
   budget: Budget;
@@ -13,6 +13,7 @@ type Props = {
 export function BudgetListItem({ budget, onPress }: Props) {
   const total = formatTotal(budget.items);
   const missing = countMissingPrices(budget.items);
+  const allMissing = missing === budget.items.length;
 
   return (
     <Pressable
@@ -34,7 +35,7 @@ export function BudgetListItem({ budget, onPress }: Props) {
       </View>
 
       <View style={styles.amountBlock}>
-        <Text style={styles.amount}>{total}</Text>
+        <Text style={[styles.amount, allMissing && styles.amountMuted]}>{total}</Text>
         {missing > 0 ? (
           <Text style={styles.pending}>
             {missing} {missing === 1 ? 'item sem valor' : 'itens sem valor'}
@@ -48,49 +49,57 @@ export function BudgetListItem({ budget, onPress }: Props) {
 const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     gap: spacing.md,
     backgroundColor: colors.surface,
-    borderRadius: radius.md,
+    borderRadius: radius.sm,
     borderWidth: 1,
     borderColor: colors.border,
     padding: spacing.lg,
   },
   pressed: {
-    backgroundColor: colors.surfaceMuted,
+    borderColor: colors.textMuted,
   },
   info: {
     flex: 1,
-    gap: 2,
+    gap: 3,
   },
   customer: {
-    fontSize: fontSize.md,
-    fontWeight: '700',
+    fontFamily: fontFamily.medium,
+    fontSize: 17,
     color: colors.text,
   },
   service: {
-    fontSize: fontSize.sm,
+    fontFamily: fontFamily.regular,
+    fontSize: 14,
     color: colors.textMuted,
   },
   meta: {
-    fontSize: fontSize.xs,
-    color: colors.textSubtle,
+    fontFamily: fontFamily.regular,
+    fontSize: 12,
+    color: colors.textMuted,
+    fontVariant: ['tabular-nums'],
     marginTop: 2,
   },
   amountBlock: {
     alignItems: 'flex-end',
+    gap: 4,
     maxWidth: '42%',
   },
   amount: {
-    fontSize: fontSize.md,
-    fontWeight: '700',
-    color: colors.primary,
+    fontFamily: fontFamily.semiBold,
+    fontSize: 17,
+    color: colors.text,
+    fontVariant: ['tabular-nums'],
     textAlign: 'right',
   },
+  amountMuted: {
+    color: colors.textMuted,
+  },
   pending: {
-    fontSize: fontSize.xs,
-    color: colors.textSubtle,
+    fontFamily: fontFamily.regular,
+    fontSize: 12,
+    color: colors.warning,
     textAlign: 'right',
-    marginTop: 2,
   },
 });

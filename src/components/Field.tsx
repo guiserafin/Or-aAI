@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   StyleSheet,
   Text,
@@ -8,7 +8,8 @@ import {
   type TextInputProps,
   type ViewStyle,
 } from 'react-native';
-import { colors, fontSize, radius, spacing } from '@/theme';
+import { colors, fontFamily, radius, spacing } from '@/theme';
+import { Icon } from './Icon';
 
 type Props = TextInputProps & {
   label: string;
@@ -17,18 +18,46 @@ type Props = TextInputProps & {
   containerStyle?: StyleProp<ViewStyle>;
 };
 
-export function Field({ label, hint, error, containerStyle, style, ...inputProps }: Props) {
+export function Field({
+  label,
+  hint,
+  error,
+  containerStyle,
+  style,
+  onFocus,
+  onBlur,
+  ...inputProps
+}: Props) {
+  const [focused, setFocused] = useState(false);
+
   return (
     <View style={containerStyle}>
       <Text style={styles.label}>{label}</Text>
       <TextInput
-        placeholderTextColor={colors.textSubtle}
+        placeholderTextColor={colors.textMuted}
         accessibilityLabel={label}
         {...inputProps}
-        style={[styles.input, inputProps.multiline && styles.multiline, !!error && styles.inputError, style]}
+        onFocus={(e) => {
+          setFocused(true);
+          onFocus?.(e);
+        }}
+        onBlur={(e) => {
+          setFocused(false);
+          onBlur?.(e);
+        }}
+        style={[
+          styles.input,
+          inputProps.multiline && styles.multiline,
+          focused && styles.inputFocused,
+          !!error && styles.inputError,
+          style,
+        ]}
       />
       {error ? (
-        <Text style={styles.error}>{error}</Text>
+        <View style={styles.errorRow}>
+          <Icon name="alert-triangle" size={16} color={colors.danger} />
+          <Text style={styles.error}>{error}</Text>
+        </View>
       ) : hint ? (
         <Text style={styles.hint}>{hint}</Text>
       ) : null}
@@ -38,19 +67,21 @@ export function Field({ label, hint, error, containerStyle, style, ...inputProps
 
 const styles = StyleSheet.create({
   label: {
-    fontSize: fontSize.sm,
-    fontWeight: '600',
+    fontFamily: fontFamily.medium,
+    fontSize: 13,
+    letterSpacing: 0.2,
     color: colors.textMuted,
     marginBottom: spacing.sm,
   },
   input: {
     backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.md,
+    borderColor: colors.borderStrong,
+    borderRadius: radius.sm,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
-    fontSize: fontSize.md,
+    fontFamily: fontFamily.regular,
+    fontSize: 17,
     color: colors.text,
     minHeight: 52,
   },
@@ -60,17 +91,30 @@ const styles = StyleSheet.create({
     paddingTop: spacing.md,
     lineHeight: 22,
   },
+  inputFocused: {
+    borderColor: colors.primary,
+  },
   inputError: {
     borderColor: colors.danger,
   },
   hint: {
-    fontSize: fontSize.xs,
-    color: colors.textSubtle,
+    fontFamily: fontFamily.regular,
+    fontSize: 13,
+    color: colors.textMuted,
+    marginTop: spacing.xs + 2,
+    lineHeight: 18,
+  },
+  errorRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: spacing.sm,
     marginTop: spacing.xs + 2,
   },
   error: {
-    fontSize: fontSize.xs,
+    flex: 1,
+    fontFamily: fontFamily.regular,
+    fontSize: 14,
+    lineHeight: 18,
     color: colors.danger,
-    marginTop: spacing.xs + 2,
   },
 });

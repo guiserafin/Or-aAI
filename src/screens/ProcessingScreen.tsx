@@ -8,7 +8,7 @@ import { generateBudget } from '@/services/ai';
 import { track } from '@/services/analytics';
 import { isServiceTypeId } from '@/data/serviceTypes';
 import { useBudgets } from '@/store/budgets';
-import { colors, fontSize, spacing } from '@/theme';
+import { colors, fontFamily, spacing } from '@/theme';
 
 const STEPS = ['Identificando serviços', 'Organizando informações', 'Montando orçamento'];
 const STEP_INTERVAL_MS = 520;
@@ -89,8 +89,8 @@ export function ProcessingScreen() {
         contentStyle={styles.center}
         footer={
           <>
-            <Button label="Tentar novamente" onPress={() => router.replace('/new-budget')} />
-            <Button label="Voltar ao início" variant="ghost" onPress={() => router.replace('/')} />
+            <Button label="Tentar novamente" corners onPress={() => router.replace('/new-budget')} />
+            <Button label="Voltar ao início" variant="secondary" onPress={() => router.replace('/')} />
           </>
         }
       >
@@ -121,16 +121,18 @@ const styles = StyleSheet.create({
     gap: spacing.md,
   },
   title: {
-    fontSize: fontSize.xxl,
-    fontWeight: '700',
+    fontFamily: fontFamily.condensedSemiBold,
+    fontSize: 30,
+    letterSpacing: -0.2,
     color: colors.text,
   },
   subtitle: {
-    fontSize: fontSize.md,
+    fontFamily: fontFamily.regular,
+    fontSize: 17,
     color: colors.textMuted,
     lineHeight: 22,
   },
   checklist: {
-    marginTop: spacing.xl,
+    marginTop: spacing.lg,
   },
 });

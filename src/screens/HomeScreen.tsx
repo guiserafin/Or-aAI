@@ -5,9 +5,11 @@ import { Screen } from '@/components/Screen';
 import { Button } from '@/components/Button';
 import { BudgetListItem } from '@/components/BudgetListItem';
 import { SectionLabel } from '@/components/SectionLabel';
+import { CornerMarks } from '@/components/CornerMarks';
+import { Icon } from '@/components/Icon';
 import { useBudgets } from '@/store/budgets';
 import { track } from '@/services/analytics';
-import { colors, fontSize, radius, spacing } from '@/theme';
+import { colors, fontFamily, spacing } from '@/theme';
 
 export function HomeScreen() {
   const router = useRouter();
@@ -25,7 +27,7 @@ export function HomeScreen() {
 
   return (
     <Screen contentStyle={styles.content}>
-      <Text style={styles.brand}>OrçaAI</Text>
+      <BrandBar />
 
       <View style={styles.hero}>
         <Text style={styles.title}>Transforme pedidos em orçamentos profissionais.</Text>
@@ -34,7 +36,7 @@ export function HomeScreen() {
         </Text>
       </View>
 
-      <Button label="Criar orçamento" onPress={startNewBudget} />
+      <Button label="Criar orçamento" icon="arrow-right" corners onPress={startNewBudget} />
 
       <DemoPreview />
 
@@ -66,6 +68,7 @@ export function HomeScreen() {
         <Button
           label="Ver meus orçamentos"
           variant="ghost"
+          style={styles.ghostAlign}
           onPress={() => router.push('/budgets')}
         />
       )}
@@ -73,23 +76,48 @@ export function HomeScreen() {
   );
 }
 
+/** Faixa de marca persistente no topo — só a Home tem isso. */
+function BrandBar() {
+  return (
+    <View style={styles.brandBar}>
+      <Text style={styles.brand}>OrçaAI</Text>
+      <View style={styles.brandRule} />
+      <Text style={styles.brandTag}>Orçamentos de serviço</Text>
+    </View>
+  );
+}
+
 /** Demonstração curta: mensagem crua de um lado, documento organizado do outro. */
 function DemoPreview() {
   return (
     <View style={styles.demo}>
+      <View style={styles.demoCaption}>
+        <SectionLabel>Como o cliente manda</SectionLabel>
+        <View style={styles.demoRule} />
+      </View>
       <View style={styles.bubble}>
-        <Text style={styles.bubbleText}>
-          “Preciso pintar 3 quartos e uma sala…”
-        </Text>
+        <Text style={styles.bubbleText}>“Preciso pintar 3 quartos e uma sala…”</Text>
       </View>
 
-      <Text style={styles.arrow}>↓</Text>
+      <View style={styles.demoArrow}>
+        <Icon name="arrow-down" size={22} color={colors.textMuted} />
+      </View>
 
+      <View style={styles.demoCaption}>
+        <SectionLabel>Como o cliente recebe</SectionLabel>
+        <View style={styles.demoRule} />
+      </View>
       <View style={styles.miniDoc}>
+        <CornerMarks color={colors.text} />
         <Text style={styles.miniDocLabel}>ORÇAMENTO Nº 0001</Text>
-        <Text style={styles.miniDocLine}>1. Pintura de 3 quartos</Text>
-        <Text style={styles.miniDocLine}>2. Pintura da sala</Text>
-        <View style={styles.miniDocDivider} />
+        <View style={styles.miniDocRow}>
+          <Text style={styles.miniDocLine}>1. Pintura de 3 quartos</Text>
+          <Text style={styles.miniDocPrice}>R$ 1.500,00</Text>
+        </View>
+        <View style={[styles.miniDocRow, styles.miniDocRowLast]}>
+          <Text style={styles.miniDocLine}>2. Pintura da sala</Text>
+          <Text style={styles.miniDocPrice}>R$ 900,00</Text>
+        </View>
         <Text style={styles.miniDocTotal}>Orçamento profissional em segundos</Text>
       </View>
     </View>
@@ -98,80 +126,125 @@ function DemoPreview() {
 
 const styles = StyleSheet.create({
   content: {
-    paddingTop: spacing.xl,
+    paddingTop: spacing.lg,
     gap: spacing.xl,
   },
+  brandBar: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: 10,
+  },
   brand: {
-    fontSize: fontSize.md,
-    fontWeight: '700',
-    letterSpacing: 0.4,
-    color: colors.primary,
+    fontFamily: fontFamily.condensedSemiBold,
+    fontSize: 22,
+    color: colors.text,
+  },
+  brandRule: {
+    flex: 1,
+    height: 1,
+    backgroundColor: colors.border,
+  },
+  brandTag: {
+    fontFamily: fontFamily.condensedSemiBold,
+    fontSize: 10,
+    letterSpacing: 2,
+    textTransform: 'uppercase',
+    color: colors.textMuted,
   },
   hero: {
     gap: spacing.md,
   },
   title: {
-    fontSize: fontSize.xxxl,
-    fontWeight: '700',
-    color: colors.text,
-    lineHeight: 38,
+    fontFamily: fontFamily.condensedSemiBold,
+    fontSize: 36,
+    lineHeight: 37,
     letterSpacing: -0.5,
+    color: colors.text,
   },
   subtitle: {
-    fontSize: fontSize.lg,
+    fontFamily: fontFamily.regular,
+    fontSize: 17,
     color: colors.textMuted,
     lineHeight: 25,
+    maxWidth: 320,
   },
   demo: {
+    gap: spacing.sm,
+  },
+  demoCaption: {
+    flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.sm,
   },
+  demoRule: {
+    flex: 1,
+    height: 1,
+    backgroundColor: colors.border,
+  },
+  demoArrow: {
+    alignItems: 'center',
+    paddingVertical: 2,
+  },
   bubble: {
-    alignSelf: 'stretch',
     backgroundColor: colors.surfaceMuted,
-    borderRadius: radius.md,
-    borderBottomLeftRadius: radius.sm / 2,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 4,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
   },
   bubbleText: {
-    fontSize: fontSize.md,
+    fontFamily: fontFamily.regular,
+    fontSize: 15,
     color: colors.textMuted,
     lineHeight: 21,
   },
-  arrow: {
-    fontSize: fontSize.lg,
-    color: colors.textSubtle,
-  },
   miniDoc: {
-    alignSelf: 'stretch',
+    position: 'relative',
     backgroundColor: colors.surface,
-    borderRadius: radius.md,
     borderWidth: 1,
     borderColor: colors.border,
-    padding: spacing.lg,
-    gap: spacing.xs + 2,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.lg,
+    paddingBottom: spacing.md + 2,
   },
   miniDocLabel: {
-    fontSize: fontSize.xs,
-    fontWeight: '700',
-    letterSpacing: 1.2,
-    color: colors.textSubtle,
-    marginBottom: spacing.xs,
+    fontFamily: fontFamily.condensedSemiBold,
+    fontSize: 10,
+    letterSpacing: 2,
+    textTransform: 'uppercase',
+    color: colors.textMuted,
+  },
+  miniDocRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: spacing.md,
+    marginTop: spacing.sm + 2,
+    paddingBottom: spacing.sm - 2,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.divider,
+  },
+  miniDocRowLast: {
+    borderBottomWidth: 2,
+    borderBottomColor: colors.ink,
+    paddingBottom: spacing.sm,
   },
   miniDocLine: {
-    fontSize: fontSize.sm,
+    fontFamily: fontFamily.regular,
+    fontSize: 14,
     color: colors.text,
   },
-  miniDocDivider: {
-    height: 1,
-    backgroundColor: colors.border,
-    marginVertical: spacing.sm,
+  miniDocPrice: {
+    fontFamily: fontFamily.medium,
+    fontSize: 14,
+    color: colors.text,
+    fontVariant: ['tabular-nums'],
   },
   miniDocTotal: {
-    fontSize: fontSize.sm,
-    fontWeight: '700',
+    fontFamily: fontFamily.condensedSemiBold,
+    fontSize: 13,
     color: colors.primary,
+    marginTop: spacing.sm,
   },
   recent: {
     gap: spacing.md,
@@ -182,8 +255,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   link: {
-    fontSize: fontSize.sm,
-    fontWeight: '600',
+    fontFamily: fontFamily.semiBold,
+    fontSize: 14,
     color: colors.primary,
+  },
+  ghostAlign: {
+    alignSelf: 'flex-start',
   },
 });

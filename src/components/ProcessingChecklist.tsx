@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
-import { ActivityIndicator, Animated, Easing, StyleSheet, Text, View } from 'react-native';
-import { colors, fontSize, spacing } from '@/theme';
+import { Animated, Easing, StyleSheet, Text, View } from 'react-native';
+import { colors, fontFamily } from '@/theme';
+import { Icon } from './Icon';
 
 type Props = {
   steps: string[];
@@ -16,6 +17,7 @@ export function ProcessingChecklist({ steps, completed }: Props) {
           key={step}
           label={step}
           state={index < completed ? 'done' : index === completed ? 'active' : 'pending'}
+          isLast={index === steps.length - 1}
         />
       ))}
     </View>
@@ -25,9 +27,11 @@ export function ProcessingChecklist({ steps, completed }: Props) {
 function ChecklistRow({
   label,
   state,
+  isLast,
 }: {
   label: string;
   state: 'done' | 'active' | 'pending';
+  isLast: boolean;
 }) {
   const progress = useRef(new Animated.Value(state === 'pending' ? 0 : 1)).current;
 
@@ -44,29 +48,36 @@ function ChecklistRow({
   const opacity = progress.interpolate({ inputRange: [0, 1], outputRange: [0.35, 1] });
 
   return (
-    <Animated.View style={[styles.row, { opacity, transform: [{ translateY }] }]}>
+    <Animated.View
+      style={[styles.row, !isLast && styles.rowDivider, { opacity, transform: [{ translateY }] }]}
+    >
       <View style={styles.marker}>
         {state === 'done' ? (
-          <Text style={styles.check}>✓</Text>
+          <Icon name="check" size={20} color={colors.primary} />
         ) : state === 'active' ? (
-          <ActivityIndicator size="small" color={colors.primary} />
+          <Icon name="loader" size={20} color={colors.primary} />
         ) : (
           <View style={styles.dot} />
         )}
       </View>
-      <Text style={[styles.label, state === 'done' && styles.labelDone]}>{label}</Text>
+      <Text style={[styles.label, state !== 'pending' && styles.labelActive]}>{label}</Text>
     </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
   list: {
-    gap: spacing.lg,
+    marginTop: 4,
   },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.md,
+    gap: 12,
+    minHeight: 52,
+  },
+  rowDivider: {
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
   },
   marker: {
     width: 24,
@@ -74,24 +85,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  check: {
-    fontSize: fontSize.lg,
-    fontWeight: '700',
-    color: colors.primary,
-  },
   dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+    width: 7,
+    height: 7,
     backgroundColor: colors.borderStrong,
   },
   label: {
     flex: 1,
-    fontSize: fontSize.md,
+    fontFamily: fontFamily.regular,
+    fontSize: 17,
     color: colors.textMuted,
   },
-  labelDone: {
+  labelActive: {
     color: colors.text,
-    fontWeight: '600',
   },
 });

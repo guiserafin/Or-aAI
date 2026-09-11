@@ -8,8 +8,8 @@ import { buildBudgetHtml } from './budgetHtml';
 export type ShareResult = 'shared' | 'dismissed';
 
 /** Compartilha o orçamento como texto (WhatsApp, e-mail, o que o sistema oferecer). */
-export async function shareBudgetText(budget: Budget): Promise<ShareResult> {
-  const message = buildBudgetText(budget);
+export async function shareBudgetText(budget: Budget, providerName?: string): Promise<ShareResult> {
+  const message = buildBudgetText(budget, providerName);
 
   if (Platform.OS === 'web') {
     const webShare = (globalThis as { navigator?: Navigator }).navigator;
@@ -26,8 +26,8 @@ export async function shareBudgetText(budget: Budget): Promise<ShareResult> {
 }
 
 /** Gera o PDF e abre a folha de compartilhamento do sistema. */
-export async function shareBudgetPdf(budget: Budget): Promise<ShareResult> {
-  const html = buildBudgetHtml(budget);
+export async function shareBudgetPdf(budget: Budget, providerName?: string): Promise<ShareResult> {
+  const html = buildBudgetHtml(budget, providerName);
 
   if (Platform.OS === 'web') {
     await Print.printAsync({ html });

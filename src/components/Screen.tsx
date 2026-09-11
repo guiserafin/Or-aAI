@@ -8,11 +8,17 @@ import {
   type StyleProp,
   type ViewStyle,
 } from 'react-native';
+import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, spacing } from '@/theme';
+import { Header } from './Header';
 
 type Props = {
   children: React.ReactNode;
+  /** Título da barra de topo. Sem título, a tela não tem cabeçalho (Home, Processando). */
+  title?: string;
+  /** Sobrescreve o botão de voltar padrão (router.back). */
+  onBack?: () => void;
   /** Conteúdo fixo no rodapé (CTAs que não devem rolar). */
   footer?: React.ReactNode;
   scroll?: boolean;
@@ -20,11 +26,14 @@ type Props = {
 };
 
 /**
- * Casca padrão das telas: fundo, safe area, rolagem e teclado tratados num
- * lugar só, para que nenhuma tela precise repetir isso.
+ * Casca padrão das telas: fundo, cabeçalho, safe area, rolagem e teclado
+ * tratados num lugar só, para que nenhuma tela precise repetir isso.
  */
-export function Screen({ children, footer, scroll = true, contentStyle }: Props) {
+export function Screen({ children, title, onBack, footer, scroll = true, contentStyle }: Props) {
   const insets = useSafeAreaInsets();
+  const router = useRouter();
+
+  const goBack = onBack ?? (() => (router.canGoBack() ? router.back() : router.replace('/')));
 
   const body = scroll ? (
     <ScrollView
@@ -41,22 +50,33 @@ export function Screen({ children, footer, scroll = true, contentStyle }: Props)
   );
 
   return (
-    <KeyboardAvoidingView
-      style={styles.flex}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 88 : 0}
-    >
-      {body}
-      {footer ? (
-        <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom, spacing.lg) }]}>
-          {footer}
-        </View>
-      ) : null}
-    </KeyboardAvoidingView>
+    <View style={styles.outer}>
+      {title !== undefined ? (
+        <Header title={title} onBack={goBack} />
+      ) : (
+        <View style={{ height: insets.top }} />
+      )}
+      <KeyboardAvoidingView
+        style={styles.flex}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 88 : 0}
+      >
+        {body}
+        {footer ? (
+          <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom, spacing.lg) }]}>
+            {footer}
+          </View>
+        ) : null}
+      </KeyboardAvoidingView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  outer: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
   flex: {
     flex: 1,
     backgroundColor: colors.background,
@@ -69,7 +89,7 @@ const styles = StyleSheet.create({
   footer: {
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.md,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.background,
     borderTopWidth: 1,
     borderTopColor: colors.border,
     gap: spacing.sm,
